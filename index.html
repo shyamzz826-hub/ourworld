@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Our Little Secret ❤️</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+ body { caret-color: transparent; user-select: none; margin:0; font-family: 'Poppins', sans-serif; color:#3b053b; min-height:100vh; overflow:hidden; background: var(--theme-bg, linear-gradient(120deg,#fff1f6,#f7e9fb)); }
+ /* Login */
+ #loginScreen{ padding-top:70px; /* show topbar space */ display:flex;align-items:center;justify-content:center;flex-direction:column;height:100vh}
+ #loginScreen input{caret-color:auto; user-select:text; padding:12px;border-radius:10px;border:0;width:220px;} 
+ #loginScreen button{margin-top:14px;padding:10px 24px;border-radius:10px;border:0;background:#ff5c8a;color:#fff;cursor:pointer}
+ /* App layout */
+ #app{display:flex;height:100vh;}
+ #sidebar{width:92px;background:#3b053b;display:flex;flex-direction:column;align-items:center;padding-top:22px;gap:22px;box-shadow:4px 0 18px (59,5,59,0.25)}
+ .icon{width:42px;height:42px;cursor:pointer;filter:brightness(0) invert(1);transition:transform .18s}
+ .icon:hover{transform:scale(1.12)}
+ /* MODIFIED: Removed horizontal padding and set correct top padding */
+ #content{flex:1;padding:0;display:flex;align-items:flex-start;justify-content:center;position:relative;padding-top:70px;}
+ .section{display:none!important;width:100%;height:100%;overflow:auto;position:relative;} .section.active{display:block!important;} 
+ .section.active{display:block}
+ /* Home */
+ .hero{max-width:900px;margin:auto;background:linear-gradient(180deg,rgba(255,255,255,0.8),rgba(255,255,255,0.6));padding:48px;border-radius:20px;box-shadow:0 8px 30px rgba(59,5,59,0.06)}
+ .hero h1{margin:0 0 10px;font-size:34px}
+ .hero p{margin:0;color:#5b254c}
+ /* Music/code */
+ .linkCard{background:#fff;padding:20px;border-radius:14px;box-shadow:0 6px 18px rgba(59,5,59,0.06);display:inline-block}
+ /* Chat UI - CONSOLIDATED & MODIFIED FOR FULL SCREEN */
+#notes{display:flex;flex-direction:column;height:100%;padding:10px;width:100%;box-sizing:border-box;}
+#notes .chatMessages{
+    flex: 1; /* Key to taking all available vertical space */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(59,5,59,0.06);
+    margin: 0; /* Ensures full width */
+    max-width: 100%; /* Ensures full width */
+    width: 100%;
+}
+.chatInputBar{display:flex;gap:8px;padding:8px 0;position:sticky;bottom:0;background:rgba(255,255,255,0.4);backdrop-filter:blur(6px);}
+ .chatHeader{display:flex;align-items:center;padding:10px 14px;background:rgba(255,255,255,0.6);border-radius:14px;margin-bottom:10px;font-weight:600;color:#3b053b}
+ .chatBubble{max-width:70%;padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.4;white-space:pre-wrap;position:relative}
+ .chatBubble.self{max-width:70%;padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.4;white-space:pre-wrap;position:relative;align-self:flex-end;background:var(--self-bubble);color:#3b053b;border-bottom-right-radius:4px;border-bottom-left-radius:18px;}
+ .chatBubble.other{align-self:flex-start;background:#ffffff;color:#3b053b;border-bottom-left-radius:4px;border-bottom-right-radius:18px;}
+ .chatInputBar{display:flex;gap:8px;margin-top:10px}
+ #chatInput{caret-color:auto; user-select:text; flex:1;padding:12px;border-radius:14px;border:0;background:#fff;} 
+ .chatInputBar button{padding:10px 18px;border-radius:14px;border:0;background:#ff5c8a;color:white;cursor:pointer}
+ @media(max-width:700px){.addInput{min-width:120px}.noteCard{width:46%}}
+ @keyframes heartbeat {0%{transform:scale(1);} 30%{transform:scale(1.08);} 60%{transform:scale(1);} 100%{transform:scale(1);} }
+ /* Popup Styles */
+ .popupOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.25);backdrop-filter:blur(4px);display:flex;justify-content:center;align-items:center;z-index:999;animation:fadeIn .25s}
+ .popupBox{background:#fff;border-radius:18px;padding:26px 32px;text-align:center;box-shadow:0 6px 22px rgba(0,0,0,0.15);animation:pop .25s}
+ .popupBox h3{margin:0 0 14px;font-weight:600;color:#3b053b}
+ .popupChoices{display:flex;gap:14px;margin-top:18px;justify-content:center}
+ .popupBtn{padding:10px 18px;border-radius:12px;border:0;cursor:pointer;font-weight:600}
+ .yesBtn{background:#ff5c8a;color:#fff}
+ .noBtn{background:#d8d8d8;color:#3b053b}
+ @keyframes pop{0%{transform:scale(.8);}100%{transform:scale(1);}}
+ @keyframes fadeIn{0%{opacity:0;}100%{opacity:1;}}
+ /* small helper */
+ .hidden{display:none}
+.sparkle{position:fixed;width:14px;height:14px;background:url('https://upload.wikimedia.org/wikipedia/commons/4/4e/Emoji_u2728.svg') center/contain no-repeat;pointer-events:none;animation:spark .6s ease-out;}@keyframes spark{0%{transform:scale(.2) translateY(0);opacity:1;}100%{transform:scale(1.8) translateY(-25px);opacity:0;}}
+
+@keyframes fallGlitter{0%{transform:translateY(0) rotate(0);}100%{transform:translateY(120vh) rotate(360deg);}}
+
+/* NEW: Global Heart Animation CSS */
+@keyframes appHeartFloat {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.9; }
+    100% { transform: translate(var(--end-x), -100vh) scale(0.6) rotate(var(--rot)); opacity: 0; }
+}
+.app-heart {
+    position: fixed;
+    bottom: -20px;
+    left: var(--start-x);
+    font-size: var(--size);
+    color: var(--heart-color); 
+    pointer-events: none;
+    animation: appHeartFloat var(--duration) linear forwards;
+    z-index: 1000;
+    text-shadow: 0 0 2px rgba(0,0,0,0.2);
+}
+/* End NEW CSS */
+
+/* Topbar & slide menu styles (injected) */
+#topbar {
+  height: 90px; /* increased height */
+  display: flex;
+  align-items: middle; /* align things to the bottom edge */
+  gap: 18px;
+  padding: 0 32px 8px 32px; /* more horizontal & bottom space */
+  background: #3b053b;
+  color: #fff;
+  box-shadow: 0 2px 14px rgba(0,0,0,0.08);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2000;
+}
+#topbar .brand img {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+}
+.brand { display: flex; align-items: flex-end; gap: 16px; }
+.spacer{flex:1}
+.hamburger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;   /* bigger button */
+  height: 64px;
+  position: relative;
+  top: 15px;     /* move lower inside topbar */
+}
+.hamburger svg {
+  width: 34px;
+  height: 34px;
+}	
+#topbarRight select {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 0;
+  color: white;
+  font-size: 18px;
+}
+#topbarRight { display: flex; align-items: flex-end; gap: 18px; position: relative; top: 10px; }
+#content.blurred{filter:blur(6px);transition:filter .25s}
+#content { padding-top: 105px; }
+#slideMenu {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 260px;
+  background: #fff;
+  padding: 40px 24px;
+  z-index: 3000;
+  transform: translateX(-100%);
+  transition: transform .45s cubic-bezier(.22,1.61,.36,1);
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+  box-shadow: 3px 0 16px rgba(0,0,0,0.15);
+}
+
+#slideOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.25);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .3s ease;z-index:2500;} #slideOverlay.show{opacity:1;pointer-events:auto}
+
+.slideItem{padding:14px 0;margin:10px 0;font-size:16px;cursor:pointer;border-radius:10px;transition:0.25s;} .slideItem:hover{background:rgba(0,0,0,0.06);} 
+</style>
+
+</head>
+<body>
+
+<div id="loginScreen" style="position:relative;overflow:hidden;">
+ <canvas id="heartCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></canvas>
+ <h2>Hi Love ❤️</h2>
+ <p>Enter the secret password</p>
+ <input type="password" id="pass" placeholder="Password" />
+ <button id="enterBtn">Enter</button>
+</div>
+
+<div id="app">
+ <style>
+ .sideItem{display:flex;flex-direction:column;align-items:center;color:#fff;font-size:12px;cursor:pointer;transition:0.3s}
+ .sideItem img{width:32px;height:32px;margin-bottom:4px;filter:brightness(0) invert(1)}
+ .sideItem:hover{transform:scale(1.1)}
+ </style>
+ <div id="topbar">
+  <div class="hamburger" onclick="openSlideMenu()"> 
+    <svg viewBox="0 0 24 24"><path fill="white" d="M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z"/></svg>
+  </div>
+  <div class="brand" style="display:flex;align-items:center;gap:8px;"><img id="siteLogo" src="https://i.ibb.co/CpdRhPZB/ourworld-logo-recolored.png" alt="logo" style="width:32px;height:32px;border-radius:6px;object-fit:cover;background:rgba(255,255,255,0.06)"> <span id="siteName" style="display:inline-block;margin-left:6px;font-weight:600;font-size:18px;">Our World</span></div>
+  <div class="spacer"></div>
+  <div id="topbarRight" style="display:flex;align-items:center;gap:12px"><select id="globalUserSwitch" onchange="switchGlobalUser()" style="padding:6px 10px;border-radius:8px;border:0;color:white;background:inherit;"><option value="aami">💖 Aami</option><option value="kannan">💙 Kannan</option></select>
+    
+  </div>
+</div>
+
+<div id="slideMenu" aria-hidden="true">
+  <div style="display:flex;align-items:center;justify-content:space-between"><strong>Menu</strong><button onclick="closeSlideMenu()" style="border:0;background:transparent;font-size:18px;cursor:pointer">✖</button></div>
+  <div class="slideItem" onclick="showSection('home'); closeSlideMenu()">🏠 Home</div>
+  <div class="slideItem" onclick="showSection('music'); closeSlideMenu()">🎶 Music</div>
+  <div class="slideItem" onclick="showSection('code'); closeSlideMenu()">💻 Moodometer</div>
+  <div class="slideItem" onclick="openNotes(); closeSlideMenu()">💬 Chats</div>
+</div>
+
+<div id="slideOverlay" onclick="closeSlideMenu()"></div>
+  <div id="content" style="position:relative;">
+  <div id="home" class="section active">
+  
+   <div class="hero">
+    <h1 id="welcomeTitle">Hi Aami ❤️</h1>
+    <p id="welcomeLine">For moments when we miss each other — a quiet place made only for us.</p>
+
+    <div style="display:flex;align-items:center;gap:12px;margin:12px 0;">
+  <div id="scoreDisplay" style="font-weight:600;font-size:18px;color:#3b053b;"></div>
+  <button onclick="showResetPopup()" style="padding:4px 10px;border-radius:8px;border:0;background:#ff5c8a;color:#fff;cursor:pointer;font-size:12px;">Reset Tasks</button>
+</div>
+
+    <div id="permTaskSection" style="margin-top:20px;">
+  <h3 style="margin-bottom:6px;">Permanent Tasks 💞</h3>
+  <div id="permTaskList" style="display:flex;flex-direction:column;gap:8px;"></div>
+  <button onclick="showAddPermTaskPopup()" style="margin-top:10px;padding:6px 14px;border-radius:10px;border:0;background:#ff5c8a;color:#fff;cursor:pointer;font-size:13px;">+ Add Permanent Task</button>
+</div>
+
+<div id="taskSection" style="margin-top:30px;">
+      <h3 style="margin-bottom:10px;">Today's Tasks ✨</h3>
+      <div id="taskList" style="display:flex;flex-direction:column;gap:10px;"></div>
+      <button onclick="showAddTaskPopup()" style="margin-top:15px;padding:8px 18px;border-radius:10px;border:0;background:#ff5c8a;color:#fff;cursor:pointer;">+ Add Task</button>
+    </div>
+   </div>
+  </div>
+  </div>
+
+  <div id="music" class="section">
+  <ul style="padding-top:20px;">
+   <div class="linkCard"><h3>🎶 Our Playlist</h3><p><a href="https://spotify.link/pLXpwovnXXb" target="_blank">Open on Spotify</a></p></div>
+  </div>
+
+  <div id="code" class="section">
+   <div class="linkCard"><h3>💻 Moodometer Instructions</h3>
+   <ul style="padding-top:20px;">
+    <p>Please follow these steps carefully:</p>
+    <ul style="margin:0; padding-left:18px; padding-top:20px; line-height:1.6;">
+      <li>Open the compiler using the button below.</li>
+      <li>Log in using my Gmail (you already know the password).</li>
+      <li>On the left side menu, click <strong>My Projects</strong>.</li>
+      <li>Find the project named <strong>Moodometer</strong>.</li>
+      <li>Open it and click <strong>Run</strong>.</li>
+      <li>Best experienced on a laptop for full functionality.</li>
+    </ul>
+    <p><a href="https://www.onlinegdb.com/" target="_blank">Open Compiler</a></p>
+   </div>
+  </div>
+
+  <div id="notes" class="section">
+   <div class="chatHeader">
+     <span id="chatUserLabel">Chat</span>
+     <select id="chatUserSelect" onchange="prepareChatSwitch()" style="margin-left:auto;padding:6px 10px;border-radius:8px;border:0;background:#ff5c8a;color:white;">
+       <option value="aami">💖 Aami</option>
+       <option value="kannan">💙 Kannan</option>
+     </select>
+   </div>
+   <div id="chatMessages" class="chatMessages"></div>
+   <div class="chatInputBar">
+     <button id="clearChatBtn" onclick="showClearChatPopup()" style="padding:10px 18px;border-radius:14px;border:0;background:#ff5c8a;color:white;cursor:pointer;font-size:18px;">🗑</button>
+     <input id="chatInput" placeholder="Type a message..." />
+     <button id="sendBtn">🕊</button>
+   </div>
+  </div>
+
+ </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+<script>
+// firebase config (already set)
+function applyTheme(){
+  const logo = document.getElementById('siteLogo');
+  const gs = document.getElementById('globalUserSwitch');
+  const chatSel = document.getElementById('chatUserSelect');
+  // MODIFIED: Added clearChatBtn to theme application
+  const clearBtn = document.getElementById('clearChatBtn');
+
+  if(currentUser === 'aami'){
+    if(logo) logo.style.filter = 'hue-rotate(90deg)';
+    document.documentElement.style.setProperty('--theme-bg','#a6e8b4');
+    document.documentElement.style.setProperty('--self-bubble','#dfffe9');
+    document.getElementById('topbar').style.background = '#48a86c';
+    if(gs) gs.style.background = '#48a86c';
+    if(chatSel) chatSel.style.background = '#48a86c';
+    if(clearBtn) clearBtn.style.background = '#48a86c';
+  } else if(currentUser === 'kannan'){
+    if(logo) logo.style.filter = 'hue-rotate(210deg)';
+    document.documentElement.style.setProperty('--theme-bg','#bddcff');
+    document.documentElement.style.setProperty('--self-bubble','#eef6ff');
+    document.getElementById('topbar').style.background = '#4f8ed6';
+    if(gs) gs.style.background = '#4f8ed6';
+    if(chatSel) chatSel.style.background = '#4f8ed6';
+    if(clearBtn) clearBtn.style.background = '#4f8ed6';
+  }
+}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCu1kLwIEMSN9w_taZyyBu7QL1iJk4-RfE",
+  authDomain: "moodometer-love.firebaseapp.com",
+  databaseURL: "https://moodometer-love-default-rtdb.firebaseio.com",
+  projectId: "moodometer-love"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const realPass = "160123";
+let activeTab = 'aami';
+let appHeartTimer = null; // MODIFIED: Renamed global timer for clarity
+let flowerTimer = null;
+let currentUser = null;
+
+// all bindings after DOM ready
+window.addEventListener('DOMContentLoaded',()=>{
+  const passInput = document.getElementById('pass');
+  if(passInput) passInput.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); checkPass(); }});
+  const enterBtn = document.getElementById('enterBtn');
+  if(enterBtn) enterBtn.addEventListener('click',checkPass);
+
+  const chatInput = document.getElementById('chatInput');
+  if(chatInput) chatInput.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendChat(); }});
+  const sendBtn = document.getElementById('sendBtn');
+  if(sendBtn) sendBtn.addEventListener('click',sendChat);
+});
+
+function switchGlobalUser(){
+  const selected = document.getElementById('globalUserSwitch').value;
+  window.pendingUserSwitch = selected;
+  document.getElementById('globalSwitchPopup').classList.remove('hidden');
+}
+function confirmGlobalSwitch(){
+  // set currentUser first, then apply theme and sync selects
+  currentUser = window.pendingUserSwitch;
+  document.getElementById('globalSwitchPopup').classList.add('hidden');
+  const globalSel = document.getElementById('globalUserSwitch'); if(globalSel) globalSel.value = currentUser;
+  const chatSel = document.getElementById('chatUserSelect'); if(chatSel) chatSel.value = currentUser;
+  applyTheme();
+  document.getElementById('chatUserLabel').textContent = currentUser==='aami'? '💖 Aami' : '💙 Kannan';
+  const wTitle = document.getElementById('welcomeTitle');
+  const wLine = document.getElementById('welcomeLine');
+  if(wTitle) wTitle.textContent = currentUser==='aami'? 'Hi Aami ❤️' : 'Hi Kannan 💙';
+  if(wLine) wLine.textContent = 'For moments when we miss each other — a quiet place made only for us.';
+  loadTasks();
+  loadChat();
+  startAppHearts(); // NEW: Start the continuous heart animation
+}
+function cancelGlobalSwitch(){
+  document.getElementById('globalSwitchPopup').classList.add('hidden');
+  document.getElementById('globalUserSwitch').value = currentUser;
+}
+
+function checkPass(){
+ let entered = document.getElementById('pass').value;
+ if(entered === realPass){
+   document.getElementById('loginScreen').style.display='none';
+   document.getElementById('app').style.display='flex';
+   // show global user selection popup
+   showGlobalUserPopup();
+ }
+}
+
+function showSection(id){
+  // MODIFIED: Removed heart-stopping logic, as hearts should be continuous across all app sections.
+  // Stop flowers
+  if(flowerTimer) { clearInterval(flowerTimer); flowerTimer = null; }
+  // Stop memory music (not used now)
+  const iframe = document.getElementById('memoryMusic');
+  if(iframe) iframe.src = iframe.src.split('?')[0];
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
+}
+
+// open notes (chat) - assumes currentUser already set
+function openNotes(){
+  if(!currentUser){ showGlobalUserPopup(); return; }
+  document.getElementById('chatUserSelect').value = currentUser;
+  document.getElementById('chatUserLabel').textContent = currentUser==='aami'? '💖 Aami' : '💙 Kannan';
+  showSection('notes');
+  
+  loadChat();
+}
+
+function switchChatUser(){
+  currentUser = document.getElementById('chatUserSelect').value;
+  document.getElementById('chatUserLabel').textContent = currentUser==='aami'? '💖 Aami' : '💙 Kannan';
+  loadChat();
+}
+
+function sendChat(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text || !currentUser) return;
+  const ref = db.ref('chat/messages').push();
+  ref.set({ text, sender: currentUser, time: Date.now() });
+  input.value = '';
+}
+
+function loadChat(){
+  let reactionPicker = document.getElementById('reactionPicker');
+  if(!reactionPicker){
+    const rp = document.createElement('div');
+    rp.id = 'reactionPicker';
+    // The styles are now provided by the <style> block at the end
+    rp.innerHTML = `<span>❤️</span><span>😆</span><span>😢</span><span>😡</span><span>👍</span><span>👎</span>`;
+    document.body.appendChild(rp);
+    reactionPicker = rp;
+
+    // Attach click listeners to the new spans
+    rp.querySelectorAll('span').forEach(span => {
+      span.onclick = (e) => {
+        e.stopPropagation(); // Prevent document.body.onclick from closing the picker
+        setReaction(e.target.textContent.trim());
+      };
+    });
+  }
+  window.currentReactionTarget = null;
+  window.currentReactionValue = null; // Initialize reaction value holder
+  
+  // Clean up any previous global click listener
+  window.removeEventListener('click', globalCloseReactionPicker, true);
+
+  
+  const box = document.getElementById('chatMessages');
+  db.ref('chat/messages').off();
+  db.ref('chat/messages').on('value', snap => {
+    box.innerHTML = '';
+    const data = snap.val() || {};
+    const entries = Object.entries(data).sort((a,b)=>a[1].time-b[1].time);
+    entries.forEach(([id,m])=>{
+      const bubble = document.createElement('div');
+      bubble.className = 'chatBubble ' + (m.sender===currentUser ? 'self' : 'other');
+      const time = new Date(m.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      // Show reaction at the bottom right of the message
+      const reactionHtml = m.reaction ? `<div style="position:absolute; bottom:-10px; right:0; background:white; border-radius:50%; width:20px; height:20px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.2); font-size:12px; line-height:20px;">${m.reaction}</div>` : "";
+      
+      bubble.innerHTML = m.text + `<div style="font-size:10px;opacity:0.7;margin-top:4px;">${time}</div>` + reactionHtml;
+
+      // Align fully left/right
+      bubble.style.marginLeft = m.sender===currentUser ? 'auto' : '0';
+      bubble.style.marginRight = m.sender===currentUser ? '0' : 'auto';
+
+      // Long press (mobile)
+      let pressTimer;
+      bubble.onmousedown = () => { pressTimer = setTimeout(()=> showDeletePopup(id), 550); };
+      bubble.onmouseup = () => clearTimeout(pressTimer);
+
+      // Right click delete (laptop)
+      bubble.oncontextmenu = (e) => {
+        e.preventDefault();
+        showDeletePopup(id);
+      };
+
+      // DOUBLE CLICK REACTION: Pass current reaction
+      bubble.ondblclick = () => showReactionPicker(id, bubble, m.reaction);
+      box.appendChild(bubble);
+    });
+    // SCROLL TO LATEST CHAT
+    box.scrollTop = box.scrollHeight;
+  });
+}
+
+function showDeletePopup(id){ window.deleteTarget=id; document.getElementById('deletePopup').style.display='flex'; }
+function closeDeletePopup(){ document.getElementById('deletePopup').style.display='none'; }
+
+document.getElementById('deleteYes').onclick=function(){ if(window.deleteTarget){ db.ref('chat/messages/'+window.deleteTarget).remove(); } closeDeletePopup(); };
+
+// NEW: Continuous, theme-colored heart animation for the entire app
+function startAppHearts() {
+  // Clear previous timer to prevent duplicates
+  if (appHeartTimer) {
+    clearInterval(appHeartTimer);
+    appHeartTimer = null;
+    // Clean up existing hearts before restart (e.g. if theme changed)
+    document.querySelectorAll('.app-heart').forEach(h => h.remove());
+  }
+  
+  if (!currentUser) return; 
+
+  // MODIFIED: Changed Aami's heart color from '#ff5c8a' (pink) to '#48a86c' (green/mint)
+  const heartColor = currentUser === 'aami' ? '#48a86c' : '#4f8ed6';
+
+  appHeartTimer = setInterval(() => {
+    // Only spawn if the app is visible (not on the login screen)
+    if (document.getElementById('loginScreen').style.display !== 'none') {
+        return;
+    }
+
+    const h = document.createElement('div');
+    h.className = 'app-heart';
+    h.textContent = '❤';
+    
+    // Random properties for CSS variables to control animation
+    const startX = Math.random() * window.innerWidth;
+    const duration = 5 + Math.random() * 5; // 5 to 10 seconds
+    const size = 20 + Math.random() * 14;
+    const endX = (Math.random() - 0.5) * 200; // float slightly left or right
+    const rotation = (Math.random() - 0.5) * 30; // slight rotation
+
+    h.style.setProperty('--heart-color', heartColor);
+    h.style.setProperty('--start-x', startX + 'px');
+    h.style.setProperty('--duration', duration + 's');
+    h.style.setProperty('--size', size + 'px');
+    h.style.setProperty('--end-x', endX + 'px');
+    h.style.setProperty('--rot', rotation + 'deg');
+    
+    document.body.appendChild(h);
+
+    // Remove heart after animation finishes
+    setTimeout(() => h.remove(), duration * 1000); 
+
+  }, 300); // Spawn a heart every 300ms
+}
+// END NEW APP HEART LOGIC
+
+// NEW REACTION FUNCTIONS
+// Global to hold the ID of the message being reacted to
+window.currentReactionTarget = null;
+window.currentReactionValue = null; // Store the currently applied reaction
+
+// Function to close the picker when clicking anywhere outside
+function globalCloseReactionPicker(e) {
+  const picker = document.getElementById('reactionPicker');
+  // Check if click target is outside the picker
+  if (picker && picker.style.display === 'flex' && !picker.contains(e.target)) {
+    picker.style.display = 'none';
+    // Clean up
+    window.removeEventListener('click', globalCloseReactionPicker, true);
+  }
+}
+
+function showReactionPicker(id, bubble, currentReaction){
+  window.currentReactionTarget = id;
+  window.currentReactionValue = currentReaction; // Store current value
+  
+  const picker = document.getElementById('reactionPicker');
+  picker.style.display = 'flex';
+  
+  const rect = bubble.getBoundingClientRect();
+  const pickerRect = picker.getBoundingClientRect();
+  
+  // Position the picker above the bubble
+  let leftPos = rect.left + rect.width / 2 - pickerRect.width / 2;
+  
+  // Keep picker within screen bounds
+  if(leftPos < 10) leftPos = 10;
+  if(leftPos + pickerRect.width > window.innerWidth - 10) leftPos = window.innerWidth - pickerRect.width - 10;
+
+  picker.style.left = leftPos + 'px';
+  picker.style.top = (rect.top - pickerRect.height - 8) + 'px';
+  
+  // Set up the global click handler with a slight delay 
+  // to prevent the double-tap from immediately triggering it.
+  window.removeEventListener('click', globalCloseReactionPicker, true); // Cleanup just in case
+  setTimeout(() => { 
+      window.addEventListener('click', globalCloseReactionPicker, true); 
+  }, 100);
+}
+
+function setReaction(emoji){
+  if(window.currentReactionTarget){
+    let newValue = emoji;
+    
+    // Toggling logic: If the selected emoji matches the current one, set to null (remove reaction)
+    if (emoji === window.currentReactionValue) {
+      newValue = null; 
+    }
+    
+    db.ref('chat/messages/' + window.currentReactionTarget + '/reaction').set(newValue);
+    
+    // Hide picker and clean up
+    document.getElementById('reactionPicker').style.display = 'none';
+    window.currentReactionTarget = null;
+    window.currentReactionValue = null;
+    window.removeEventListener('click', globalCloseReactionPicker, true);
+  }
+}
+// END NEW REACTION FUNCTIONS
+
+// NEW CLEAR CHAT FUNCTIONS
+function showClearChatPopup(){
+  // Clear any previous password input
+  document.getElementById('clearChatPass').value = '';
+  document.getElementById('clearChatPopup').classList.remove('hidden');
+}
+
+function confirmClearChat(){
+  const enteredPass = document.getElementById('clearChatPass').value.trim();
+  const popup = document.getElementById('clearChatPopup');
+
+  if(enteredPass === realPass){
+    // Password confirmed: Clear the chat history
+    db.ref('chat/messages').remove()
+      .then(() => {
+        // Optional visual feedback
+        brokenHeart(); // Using existing effect for theme consistency
+        popup.classList.add('hidden');
+        alert("Chat history cleared!");
+      })
+      .catch(error => {
+        alert("Error clearing chat: " + error.message);
+        popup.classList.add('hidden');
+      });
+  } else {
+    // Incorrect password
+    alert("Incorrect password! Cannot clear chat.");
+    document.getElementById('clearChatPass').value = ''; // Clear input for retry
+  }
+}
+// END NEW CLEAR CHAT FUNCTIONS
+
+</script>
+
+<script>
+function openSlideMenu() {
+  const menu = document.getElementById('slideMenu');
+  const overlay = document.getElementById('slideOverlay');
+  const content = document.getElementById('content');
+  if(menu) menu.style.transform = 'translateX(0)';
+  if(overlay) overlay.classList.add('show');
+  if(content) content.classList.add('blurred');
+}
+function closeSlideMenu() {
+  const menu = document.getElementById('slideMenu');
+  const overlay = document.getElementById('slideOverlay');
+  const content = document.getElementById('content');
+  if(menu) menu.style.transform = 'translateX(-100%)';
+  if(overlay) overlay.classList.remove('show');
+  if(content) content.classList.remove('blurred');
+}
+// allow setting a custom logo later
+function setSiteLogo(url){ const img=document.getElementById('siteLogo'); if(img) img.src=url; }
+</script>
+
+<div id="chatUserPopup" class="hidden popupOverlay">
+ <div class="popupBox">
+   <h3>Who's chatting? 💞</h3>
+   <div class="popupChoices">
+     <button class="popupBtn yesBtn" onclick="setChatUser('aami')">💖 Aami</button>
+     <button class="popupBtn yesBtn" onclick="setChatUser('kannan')">💙 Kannan</button>
+   </div>
+ </div>
+</div>
+
+<div id="deletePopup" class="hidden popupOverlay">
+ <div class="popupBox">
+   <h3>Delete this message? 💗</h3>
+   <div class="popupChoices">
+     <button class="popupBtn yesBtn" id="deleteYes">Yes</button>
+     <button class="popupBtn noBtn" onclick="closeDeletePopup()">No</button>
+   </div>
+ </div>
+</div>
+
+<div id="clearChatPopup" class="popupOverlay hidden">
+ <div class="popupBox">
+   <h3>Clear Chat History? 💔</h3>
+   <p style="font-size:13px;color:#5b254c;">Enter the secret password to delete all messages forever.</p>
+   <input id="clearChatPass" type="password" placeholder="Enter password" style="padding:8px;width:100%;border-radius:8px;border:1px solid #ccc;">
+   <div class="popupChoices" style="margin-top:18px;">
+     <button class="popupBtn yesBtn" onclick="confirmClearChat()">Confirm Delete</button>
+     <button class="popupBtn noBtn" onclick="document.getElementById('clearChatPopup').classList.add('hidden')">Cancel</button>
+   </div>
+ </div>
+</div>
+<script>
+function showGlobalUserPopup(){ document.getElementById('chatUserPopup').classList.remove('hidden'); }
+function setChatUser(u){
+  currentUser = u;
+  applyTheme();
+  document.getElementById('chatUserPopup').classList.add('hidden');
+
+  const wTitle = document.getElementById('welcomeTitle');
+  const wLine = document.getElementById('welcomeLine');
+  if(currentUser==='aami'){ wTitle.textContent='Hi Aami ❤️'; wLine.textContent='For moments when we miss each other — a quiet place made only for us.' }
+  else{ wTitle.textContent='Hi Kannan 💙'; wLine.textContent='For moments when we miss each other — a quiet place made only for us.' }
+  
+  const globalSel = document.getElementById('globalUserSwitch'); if(globalSel) globalSel.value = currentUser;
+  const chatSel = document.getElementById('chatUserSelect'); if(chatSel) chatSel.value = currentUser;
+  
+  document.getElementById('chatUserLabel').textContent = currentUser==='aami'? '💖 Aami' : '💙 Kannan';
+  
+  loadTasks();
+  loadChat();
+  startAppHearts(); // NEW: Start the continuous heart animation here too
+}
+
+let deleteTarget=null;
+function showDeletePopup(id){ deleteTarget=id; document.getElementById('deletePopup').classList.remove('hidden'); }
+function closeDeletePopup(){ document.getElementById('deletePopup').classList.add('hidden'); }
+
+document.getElementById('deleteYes').onclick=function(){ if(deleteTarget){ db.ref('chat/messages/'+deleteTarget).remove(); } closeDeletePopup(); };
+</script>
+
+<div id="addTaskPopup" class="popupOverlay hidden">
+ <div class="popupBox">
+   <h3>Add a Task 💞</h3>
+   <input id="newTaskInput" placeholder="What do we need to do?" style="padding:10px;border-radius:10px;border:1px solid #ccc;width:100%;" />
+   <div class="popupChoices" style="margin-top:18px;">
+     <button class="popupBtn yesBtn" onclick="addTask()">Add</button>
+     <button class="popupBtn noBtn" onclick="closeAddTaskPopup()">Cancel</button>
+   </div>
+ </div>
+</div>
+
+<script>
+function showAddTaskPopup(){ document.getElementById('addTaskPopup').classList.remove('hidden'); }
+function closeAddTaskPopup(){ document.getElementById('addTaskPopup').classList.add('hidden'); }
+
+function loadTasks(){
+  if(!currentUser) return;
+  loadPermanentTasks(); // <<< NEW
+  const list = document.getElementById('taskList');
+  list.innerHTML = '';
+  db.ref('tasks').on('value', snap => {
+    list.innerHTML = '';
+    const all = snap.val() || {};
+    Object.entries(all).forEach(([owner, tasks]) => {
+      Object.entries(tasks).forEach(([id, task]) => {
+        const row = document.createElement('div');
+        row.style.display='flex'; row.style.alignItems='center'; row.style.justifyContent='space-between'; row.style.padding='6px 0';
+
+        const label = document.createElement('span');
+        const dot = owner==='aami'?'💗':'💙';
+        label.textContent = `${dot} ${owner}: ${task.text}`;
+        if(task.completed) label.style.opacity = 0.6;
+
+        const check = document.createElement('input');
+        check.type='checkbox';
+        check.checked = task.completed || false;
+        check.disabled = owner!==currentUser;
+        check.onchange=function(){
+          const sp = document.createElement('div');
+          sp.className = 'sparkle';
+          const rect = check.getBoundingClientRect();
+          sp.style.left = rect.left + window.scrollX + 'px';
+          sp.style.top = rect.top + window.scrollY + 'px';
+          document.body.appendChild(sp); setTimeout(()=>sp.remove(),600);
+
+          db.ref(`tasks/${owner}/${id}/completed`).set(this.checked);
+          if(this.checked){ awardPoint(owner); glitterRain(); }
+          else { removePoint(owner); }
+        };
+
+        row.appendChild(label);
+        row.oncontextmenu = (e)=>{ e.preventDefault(); showDeleteTaskPopup(owner,id,task); };
+        row.appendChild(check);
+        list.appendChild(row);
+      });
+    });
+  });
+  updateScores();
+}
+
+function addTask(){
+  // ensure user selected
+  if(!currentUser){ showGlobalUserPopup(); return; }
+  fireEffect();
+  const text = document.getElementById('newTaskInput').value.trim();
+  if(text && currentUser){
+    db.ref('tasks/'+currentUser).push({ text, completed:false });
+  }
+  document.getElementById('newTaskInput').value='';
+  closeAddTaskPopup();
+}
+
+// call loadTasks on user switch
+// Glitter rain
+function glitterRain(){ const container=document.createElement('div'); container.style.position='fixed'; container.style.left=0; container.style.top=0; container.style.width='100%'; container.style.height='100%'; container.style.pointerEvents='none'; container.style.zIndex=9999;
+ for(let i=0;i<80;i++){ const g=document.createElement('div'); g.textContent='✨'; g.style.position='absolute'; g.style.left=Math.random()*100+'%'; g.style.top='-10px'; g.style.fontSize=(14+Math.random()*10)+'px'; g.style.animation=`fallGlitter ${2+Math.random()*1.5}s linear forwards`; container.appendChild(g);} document.body.appendChild(container); setTimeout(()=>container.remove(),3000);} 
+
+// Fire effect
+function fireEffect(){ const f=document.createElement('div'); f.textContent='🔥'; f.style.position='fixed'; f.style.left='50%'; f.style.top='50%'; f.style.transform='translate(-50%,-50%) scale(0.4)'; f.style.opacity='0'; f.style.fontSize='40px'; f.style.transition='all .7s ease'; document.body.appendChild(f); setTimeout(()=>{f.style.opacity='1'; f.style.transform='translate(-50%,-50%) scale(1.6)';},10); setTimeout(()=>{f.style.opacity='0'; f.style.transform='translate(-50%,-50%) scale(0.4)';},700); setTimeout(()=>f.remove(),1200);} 
+// Broken heart
+function brokenHeart(){ const h=document.createElement('div'); h.textContent='💔'; h.style.position='fixed'; h.style.left='50%'; h.style.top='50%'; h.style.transform='translate(-50%,-50%) scale(0.4)'; h.style.opacity='0'; h.style.fontSize='50px'; h.style.transition='all .7s ease'; document.body.appendChild(h); setTimeout(()=>{h.style.opacity='1'; h.style.transform='translate(-50%,-50%) scale(1.6)';},10); setTimeout(()=>{h.style.opacity='0'; h.style.transform='translate(-50%,-50%) scale(0.4)';},700); setTimeout(()=>h.remove(),1200);} 
+function awardPoint(user){ db.ref('points/'+user).transaction(v=> (v||0)+1 ); }
+function removePoint(user){ db.ref('points/'+user).transaction(v=> (v||0)-1 ); }
+function updateScores(){ db.ref('points').off(); db.ref('points').on('value',snap=>{ const p=snap.val()||{}; const s=document.getElementById('scoreDisplay'); if(!s) return; s.innerHTML = `<div style="display:flex; gap:12px;"> <div style="padding:6px 14px; background:#fff; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.08);">💖 Aami: ${p.aami||0}</div> <div style="padding:6px 14px; background:#fff; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.08);">💙 Kannan: ${p.kannan||0}</div> </div>`; }); }
+updateScores();
+// call loadTasks on user switch
+const _oldSetChatUser = setChatUser;
+setChatUser = function(u){ _oldSetChatUser(u); loadTasks(); };
+</script>
+
+<div id="resetPopup" class="popupOverlay hidden">
+ <div class="popupBox">
+   <h3>Reset your tasks? 💗</h3>
+   <p style="font-size:14px;color:#5b254c;">This will remove all tasks you created and adjust your points.</p>
+   <div class="popupChoices">
+     <button class="popupBtn yesBtn" onclick="resetMyTasks()">Yes</button>
+     <button class="popupBtn noBtn" onclick="document.getElementById('resetPopup').classList.add('hidden')">No</button>
+   </div>
+ </div>
+</div>
+
+<script>
+function showResetPopup(){ document.getElementById('resetPopup').classList.remove('hidden'); }
+function resetMyTasks(){
+  if(!currentUser) return;
+  // remove all user's tasks
+  db.ref('tasks/'+currentUser).remove();
+  // reset user's score to zero
+  db.ref('points/'+currentUser).set(0);
+  document.getElementById('resetPopup').classList.add('hidden');
+  updateScores();
+}
+function deleteTask(owner,id,task){
+  if(task.completed) removePoint(owner);
+  db.ref(`tasks/${owner}/${id}`).remove();
+}
+</script>
+
+<div id="deleteTaskPopup" class="popupOverlay hidden">
+ <div class="popupBox">
+   <h3>Delete this task? 🌙</h3>
+   <div class="popupChoices">
+     <button class="popupBtn yesBtn" onclick="confirmDeleteTask()">Yes</button>
+     <button class="popupBtn noBtn" onclick="document.getElementById('deleteTaskPopup').classList.add('hidden')">No</button>
+   </div>
+ </div>
+</div>
+
+<script>
+let deleteOwner=null, deleteId=null, deleteObj=null;
+function showDeleteTaskPopup(owner,id,task){ deleteOwner=owner; deleteId=id; deleteObj=task; document.getElementById('deleteTaskPopup').classList.remove('hidden'); }
+function confirmDeleteTask(){ if(deleteOwner&&deleteId){ deleteTask(deleteOwner,deleteId,deleteObj); } document.getElementById('deleteTaskPopup').classList.add('hidden'); }
+</script>
+
+<div id="globalSwitchPopup" class="popupOverlay hidden">
+ <div class="popupBox">
+   <h3>Switch User? 💞</h3>
+   <div class="popupChoices">
+     <button class="popupBtn yesBtn" onclick="confirmGlobalSwitch()">Yes</button>
+     <button class="popupBtn noBtn" onclick="cancelGlobalSwitch()">No</button>
+   </div>
+ </div>
+</div>
+
+
+<div id="chatSwitchPopup" class="popupOverlay hidden">
+ <div class="popupBox">
+   <h3>Switch Chat User? 💞</h3>
+   <div class="popupChoices">
+     <button class="popupBtn yesBtn" onclick="confirmChatSwitch()">Yes</button>
+     <button class="popupBtn noBtn" onclick="cancelChatSwitch()">No</button>
+   </div>
+ </div>
+</div>
+<script>
+function prepareChatSwitch(){ window.pendingChatSwitch = document.getElementById('chatUserSelect').value; document.getElementById('chatSwitchPopup').classList.remove('hidden'); }
+function confirmChatSwitch(){
+  currentUser = window.pendingChatSwitch;
+  document.getElementById('chatSwitchPopup').classList.add('hidden');
+  const globalSel = document.getElementById('globalUserSwitch'); if(globalSel) globalSel.value = currentUser;
+  applyTheme();
+  document.getElementById('chatUserLabel').textContent = currentUser==='aami'? '💖 Aami' : '💙 Kannan';
+  const wTitle = document.getElementById('welcomeTitle');
+  if(wTitle) wTitle.textContent = currentUser==='aami'? 'Hi Aami ❤️' : 'Hi Kannan 💙';
+  loadChat();
+  loadTasks();
+  startAppHearts(); // NEW: Restart/Update theme for app hearts on user switch
+}
+function cancelChatSwitch(){ document.getElementById('chatSwitchPopup').classList.add('hidden'); document.getElementById('chatUserSelect').value = currentUser; }
+</script>
+
+<script>
+// Define loginScreen first to ensure all listeners/functions can access it
+const loginScreen = document.getElementById('loginScreen');
+
+// Floating hearts + break animation on login screen
+const canvas=document.getElementById('heartCanvas');
+const ctx=canvas.getContext('2d');
+let hearts=[];
+
+function resize(){canvas.width=loginScreen.clientWidth;canvas.height=loginScreen.clientHeight;}
+resize();
+window.addEventListener('resize',resize);
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  hearts.forEach((h,i)=>{
+    h.y-=h.speed;
+    h.size+=0.02;
+    ctx.globalAlpha=h.alpha;
+    ctx.fillStyle=h.color;
+    ctx.font=`${h.size}px serif`;
+    ctx.fillText('❤',h.x,h.y);
+    if(h.alpha>0)h.alpha-=0.003;
+    if(h.y<0||h.alpha<=0)hearts.splice(i,1);
+  });
+  requestAnimationFrame(draw);
+}
+draw();
+
+// 1. Continuous Heart Floating Animation
+function spawnFloatingHeart() {
+    hearts.push({
+        x: Math.random() * canvas.width,
+        y: canvas.height + 10,
+        size: 20 + Math.random() * 10,
+        alpha: 1,
+        speed: 0.8 + Math.random() * 1.5,
+        color: '#ff5c8a'
+    });
+}
+setInterval(spawnFloatingHeart, 200); // Spawn a heart every 200ms
+
+// 2. Non-stop heart popup on cursor drag/touch
+function handleMoveInteraction(e) {
+    // Check if the interaction is happening over the input field or button
+    if(e.target.id === 'pass' || e.target.id === 'enterBtn') return;
+
+    const rect = canvas.getBoundingClientRect();
+    let x, y;
+
+    if (e.touches && e.touches.length > 0) {
+        x = e.touches[0].clientX - rect.left;
+        y = e.touches[0].clientY - rect.top;
+        e.preventDefault(); // Prevent scrolling on touch move
+    } else {
+        x = e.clientX - rect.left;
+        y = e.clientY - rect.top;
+    }
+    
+    // Spawn a large, instant heart for the "popup" effect
+    hearts.push({
+        x, 
+        y, 
+        size: 30 + Math.random() * 8, 
+        alpha: 1, 
+        speed: 1, 
+        color: '#ff5c8a'
+    });
+}
+
+loginScreen.addEventListener('mousemove', handleMoveInteraction);
+loginScreen.addEventListener('touchmove', handleMoveInteraction);
+
+// 3. Simple heart burst on click (removed the 'I love you' text popup)
+loginScreen.addEventListener('click',e=>{
+ if(e.target.id==='pass' || e.target.id==='enterBtn') return;
+ const rect=canvas.getBoundingClientRect();
+ const x=e.clientX-rect.left, y=e.clientY-rect.top;
+ for(let i=0;i<6;i++){
+  hearts.push({x, y, size:28+Math.random()*4, alpha:1, speed:0.5+Math.random()*1.5, color:'#ff5c8a'});
+ }
+});
+</script>
+
+<div id="addPermTaskPopup" class="popupOverlay hidden">
+ <div class="popupBox">
+   <h3>Add Permanent Task 🌙</h3>
+   <input id="newPermTaskInput" placeholder="Write a promise..." style="padding:10px;border-radius:10px;border:1px solid #ccc;width:100%;" />
+   <div class="popupChoices" style="margin-top:18px;">
+     <button class="popupBtn yesBtn" onclick="addPermTask()">Add</button>
+     <button class="popupBtn noBtn" onclick="closeAddPermTaskPopup()">Cancel</button>
+   </div>
+ </div>
+</div>
+
+<div id="deletePermTaskPopup" class="popupOverlay hidden">
+ <div class="popupBox">
+   <h3>Enter password to delete 💔</h3>
+   <p style="font-size:13px;color:#5b254c;">Please enter the secret password to confirm deletion.</p>
+   <input id="permDeletePass" type="password" placeholder="Enter password" style="padding:8px;width:100%;border-radius:8px;border:1px solid #ccc;">
+   <div class="popupChoices" style="margin-top:18px;">
+     <button class="popupBtn yesBtn" onclick="confirmDeletePermTask()">Delete</button>
+     <button class="popupBtn noBtn" onclick="closeDeletePermTaskPopup()">Cancel</button>
+   </div>
+ </div>
+</div>
+
+<div id="deletePermConfirmPopup" class="popupOverlay hidden">
+ <div class="popupBox">
+   <h3>Delete this permanent task? 💔</h3>
+   <div class="popupChoices">
+     <button class="popupBtn yesBtn" onclick="showPasswordForPermDelete()">Yes</button>
+     <button class="popupBtn noBtn" onclick="closeDeletePermConfirmPopup()">No</button>
+   </div>
+ </div>
+</div>
+ </div>
+</div>
+
+<script>
+function loadPermanentTasks(){
+  const box=document.getElementById('permTaskList');
+  box.innerHTML='';
+  db.ref('permanentTasks').on('value',snap=>{
+    box.innerHTML='';
+    const data=snap.val()||{};
+    Object.entries(data).forEach(([id,obj])=>{
+      const row=document.createElement('div');
+      row.style.display='flex';row.style.alignItems='center';row.style.justifyContent='space-between';row.style.padding='6px 0';
+
+      const left=document.createElement('span');
+      const dot = obj.owner==='aami' ? '💗' : '💙';
+      left.textContent = `${dot} ${obj.owner}: ${obj.text}`;
+
+      const del=document.createElement('span');
+      del.textContent='✖';
+      del.style.cursor='pointer';
+      del.style.opacity='0.7';
+      del.onmouseover=()=>del.style.opacity='1';
+      del.onmouseout=()=>del.style.opacity='0.7';
+      del.onclick=()=>{
+        // first show a simple confirm popup (Yes/No). On Yes -> ask password
+        window.permDeleteId = id;
+        document.getElementById('deletePermConfirmPopup').classList.remove('hidden');
+      };
+
+      row.appendChild(left);
+      row.appendChild(del);
+      box.appendChild(row);
+    });
+  });
+}
+
+function showAddPermTaskPopup(){ document.getElementById('addPermTaskPopup').classList.remove('hidden'); }
+function closeAddPermTaskPopup(){ document.getElementById('addPermTaskPopup').classList.add('hidden'); }
+function addPermTask(){
+  if(!currentUser){ showGlobalUserPopup(); return; }
+  const text=document.getElementById('newPermTaskInput').value.trim();
+  if(text && currentUser){
+    db.ref('permanentTasks').push({text, owner: currentUser, name: currentUser});
+    // themed heart pop
+    const h=document.createElement('div'); h.textContent = currentUser==='aami' ? '💗' : '💙'; h.style.position='fixed'; h.style.left='50%'; h.style.top='50%'; h.style.transform='translate(-50%,-50%) scale(0.5)'; h.style.opacity='0'; h.style.fontSize='32px'; h.style.transition='all .6s ease'; document.body.appendChild(h);
+    setTimeout(()=>{h.style.opacity='1'; h.style.transform='translate(-50%,-50%) scale(1.5)';},10);
+    setTimeout(()=>{h.style.opacity='0'; h.style.transform='translate(-50%,-50%) scale(0.6)';},900);
+    setTimeout(()=>h.remove(),1500);
+  }
+  document.getElementById('newPermTaskInput').value=''; closeAddPermTaskPopup();
+}
+
+function closeDeletePermTaskPopup(){ document.getElementById('deletePermTaskPopup').classList.add('hidden'); }
+function closeDeletePermConfirmPopup(){ document.getElementById('deletePermConfirmPopup').classList.add('hidden'); }
+function showPasswordForPermDelete(){ document.getElementById('deletePermConfirmPopup').classList.add('hidden'); document.getElementById('permDeletePass').value=''; document.getElementById('deletePermTaskPopup').classList.remove('hidden'); }
+function confirmDeletePermTask(){
+  const pass = document.getElementById('permDeletePass').value.trim();
+  if(pass===realPass && window.permDeleteId){
+    brokenHeart();
+    db.ref('permanentTasks/'+window.permDeleteId).remove();
+    closeDeletePermTaskPopup();
+  }
+}
+</script>
+
+<style>
+#reactionPicker{position:fixed;display:flex;gap:8px;background:#fff;padding:8px 12px;border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.2);z-index:5000;display:none; transition: all 0.15s ease-out;}
+#reactionPicker span{font-size:26px;cursor:pointer;transition:transform .15s}
+#reactionPicker span:hover{transform:scale(1.3)}
+</style>
+
+</body>
+</html>
