@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Our Little Secret ❤️</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
  body { caret-color: transparent; user-select: none; margin:0; font-family: 'Poppins', sans-serif; color:#3b053b; min-height:100vh; overflow:hidden; background: var(--theme-bg, linear-gradient(120deg,#fff1f6,#f7e9fb)); }
  /* Login */
@@ -113,11 +115,40 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 64px;   /* bigger button */
+  width: 64px;
   height: 64px;
   position: relative;
-  top: 15px;     /* move lower inside topbar */
+  top: 20px;
+  right: 30px;
+
+  border-radius: 12px;
+  transition: 0.25s ease; /* Smooth animation */
+  cursor: pointer;
 }
+
+/* Glow when cursor moves toward it (hover) */
+.hamburger:hover {
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.35);
+  transform: scale(1.05); /* slightly grows */
+}
+
+/* Glow when clicked / touched (press) */
+.hamburger:active {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+  transform: scale(0.92); /* feels like a press */
+}
+
+.hamburger svg {
+  width: 34px;
+  height: 34px;
+  transition: 0.25s ease;
+}
+
+/* icon glows / reacts too */
+.hamburger:hover svg {
+  transform: scale(1.12);
+}
+
 .hamburger svg {
   width: 34px;
   height: 34px;
@@ -173,7 +204,7 @@
   <div class="hamburger" onclick="openSlideMenu()"> 
     <svg viewBox="0 0 24 24"><path fill="white" d="M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z"/></svg>
   </div>
-  <div class="brand" style="display:flex;align-items:center;gap:8px;"><img id="siteLogo" src="https://i.ibb.co/CpdRhPZB/ourworld-logo-recolored.png" alt="logo" style="width:32px;height:32px;border-radius:6px;object-fit:cover;background:rgba(255,255,255,0.06)"> <span id="siteName" style="display:inline-block;margin-left:6px;font-weight:600;font-size:18px;">Our World</span></div>
+  <div class="brand" style="display:flex;align-items:center;gap:8px; margin-left:-40px;margin-bottom:-10px;"><img id="siteLogo" src="https://i.postimg.cc/c1K4QXKP/Gemini-Generated-Image-jq39pzjq39pzjq39.png" alt="logo" style="width:50px;height:50px;border-radius:6px;object-fit:cover;background:rgba(255,255,255,0.06)"> <span id="siteName" style="display:inline-block;margin-left:6px;font-weight:600;font-family:'Dancing Script',cursive;font-size:30px;">Ka & ami</span></div>
   <div class="spacer"></div>
   <div id="topbarRight" style="display:flex;align-items:center;gap:12px"><select id="globalUserSwitch" onchange="switchGlobalUser()" style="padding:6px 10px;border-radius:8px;border:0;color:white;background:inherit;"><option value="aami">💖 Aami</option><option value="kannan">💙 Kannan</option></select>
     
@@ -268,7 +299,6 @@ function applyTheme(){
   const clearBtn = document.getElementById('clearChatBtn');
 
   if(currentUser === 'aami'){
-    if(logo) logo.style.filter = 'hue-rotate(90deg)';
     document.documentElement.style.setProperty('--theme-bg','#a6e8b4');
     document.documentElement.style.setProperty('--self-bubble','#dfffe9');
     document.getElementById('topbar').style.background = '#48a86c';
@@ -276,7 +306,6 @@ function applyTheme(){
     if(chatSel) chatSel.style.background = '#48a86c';
     if(clearBtn) clearBtn.style.background = '#48a86c';
   } else if(currentUser === 'kannan'){
-    if(logo) logo.style.filter = 'hue-rotate(210deg)';
     document.documentElement.style.setProperty('--theme-bg','#bddcff');
     document.documentElement.style.setProperty('--self-bubble','#eef6ff');
     document.getElementById('topbar').style.background = '#4f8ed6';
